@@ -1,0 +1,58 @@
+# This YAML file describes your package. Stack will automatically generate a
+# Cabal file when you run `stack build`. See the hpack website for help with
+# this file: <https://github.com/sol/hpack>.
+benchmarks:
+  ghcjs-signal-benchmarks:
+    dependencies:
+    - base
+    - ghcjs-signal
+    - criterion
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: benchmark
+category: Other
+description: ghcjs-signal is a new Haskeleton package.
+executables:
+  ghcjs-signal:
+    dependencies:
+    - base
+    - ghcjs-signal
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: executable
+extra-source-files:
+- CHANGELOG.md
+- LICENSE.md
+- package.yaml
+- README.md
+- stack.yaml
+ghc-options: -Wall
+github: NickSeagull/ghcjs-signal
+library:
+  dependencies:
+  - base
+  source-dirs: library
+license: MIT
+maintainer: Nikita Tchayka
+name: ghcjs-signal
+synopsis: A new Haskeleton package.
+tests:
+  ghcjs-signal-test-suite:
+    dependencies:
+    - base
+    - ghcjs-signal
+    - tasty
+    - tasty-hspec
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: test-suite
+version: '0.0.0'
