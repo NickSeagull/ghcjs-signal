@@ -37,6 +37,8 @@ tests:
     - base
     - ghcjs-signal
     - hspec
+    - QuickCheck
+    - quickcheck-io
     ghc-options:
     - -rtsopts
     - -threaded
