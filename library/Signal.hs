@@ -12,10 +12,7 @@ newtype Signal a = Signal a
 
 -- |Creates a signal with a constant value.
 constant :: a -> Signal a
-constant = undefined
-
-mapSig :: (a -> b) -> Signal a -> Signal b
-mapSig = undefined
+constant = Signal
 
 applySig :: Signal (a -> b) -> Signal a -> Signal b
 applySig = undefined
@@ -54,7 +51,7 @@ dropRepeats = undefined
 -- |Given a signal of effects with no return value, run each effect as it
 -- |comes in.
 runSignal :: Signal (IO ()) -> IO ()
-runSignal = undefined
+runSignal (Signal action) = action
 
 -- |Takes a signal of effects of `a`, and produces an effect which returns a
 -- |signal which will take each effect produced by the input signal, run it,
@@ -89,7 +86,7 @@ infix 4 ~>
 sig ~> f = fmap f sig
 
 instance Functor Signal where
-  fmap = mapSig
+  fmap f sig = undefined
 
 instance Applicative Signal where
   pure = constant

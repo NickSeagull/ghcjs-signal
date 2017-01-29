@@ -1,7 +1,13 @@
 import Test.Hspec
+import Signal
 
 main :: IO ()
 main = hspec $ do
-    describe "Signal" $ do
-        it "is true" $ do
-            1 + 1 `shouldBe` (2 :: Int)
+
+    describe "A Signal" $ do
+
+        it "can contain an IO action, able to run it after" $ do
+            runSignal . constant $ pass
+
+pass :: IO ()
+pass = putStr ""
