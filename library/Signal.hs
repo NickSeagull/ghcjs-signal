@@ -81,7 +81,7 @@ flattenArray = undefined
 flatten :: (Functor f, Foldable f) => Signal (f a) -> a -> Signal a
 flatten sig = flattenArray (sig ~> fold . fmap (: []) )
 
-infix 4 ~>
+infixl 4 ~>
 (~>) :: Signal a -> (a -> b) -> Signal b
 sig ~> f = fmap f sig
 
