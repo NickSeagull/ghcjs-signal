@@ -86,7 +86,7 @@ infix 4 ~>
 sig ~> f = fmap f sig
 
 instance Functor Signal where
-  fmap f sig = undefined
+  fmap f (Signal value) = Signal $ f value
 
 instance Applicative Signal where
   pure = constant
