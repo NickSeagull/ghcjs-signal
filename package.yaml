@@ -15,17 +15,6 @@ benchmarks:
     source-dirs: benchmark
 category: Other
 description: ghcjs-signal is a new Haskeleton package.
-executables:
-  ghcjs-signal:
-    dependencies:
-    - base
-    - ghcjs-signal
-    ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
-    main: Main.hs
-    source-dirs: executable
 extra-source-files:
 - CHANGELOG.md
 - LICENSE.md
@@ -47,8 +36,7 @@ tests:
     dependencies:
     - base
     - ghcjs-signal
-    - tasty
-    - tasty-hspec
+    - hspec
     ghc-options:
     - -rtsopts
     - -threaded

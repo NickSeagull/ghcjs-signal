@@ -1,53 +1,35 @@
-module Signal
-  ( Signal()
-  , constant
-  , merge
-  , mergeMany
-  , foldp
-  , sampleOn
-  , dropRepeats
-  , dropRepeats'
-  , runSignal
-  , unwrap
-  , filter
-  , filterMap
-  , flatten
-  , flattenArray
-  , (<~)
-  , (~>)
-  , (~)
-  , squigglyMap
-  , squigglyApply
-  , flippedMap
-  , map2
-  , map3
-  , map4
-  , map5
-  ) where
+module Signal where
 
-import Prelude
+import Prelude hiding (filter)
 
-import Control.Monad.Eff (Eff())
-import Data.Foldable (fold, foldl, class Foldable)
-import Data.Maybe (Maybe(..), fromMaybe, isJust)
+import Control.Applicative
+import Data.Functor
+import Data.Semigroup
+import Data.Foldable
+import Data.Maybe
 
-foreign import data Signal :: * -> *
+newtype Signal a = Signal a
 
 -- |Creates a signal with a constant value.
-foreign import constant :: forall a. a -> Signal a
+constant :: a -> Signal a
+constant = undefined
 
-foreign import mapSig :: forall a b. (a -> b) -> Signal a -> Signal b
-foreign import applySig :: forall a b. Signal (a -> b) -> Signal a -> Signal b
+mapSig :: (a -> b) -> Signal a -> Signal b
+mapSig = undefined
+
+applySig :: Signal (a -> b) -> Signal a -> Signal b
+applySig = undefined
 
 -- |Merge two signals, returning a new signal which will yield a value
 -- |whenever either of the input signals yield. Its initial value will be
 -- |that of the first signal.
-foreign import merge :: forall a. (Signal a) -> (Signal a) -> (Signal a)
+merge :: Signal a -> Signal a -> Signal a
+merge = undefined
 
 -- |Merge all signals inside a `Foldable`, returning a `Maybe` which will
 -- |either contain the resulting signal, or `Nothing` if the `Foldable`
 -- |was empty.
-mergeMany :: forall f a. (Functor f, Foldable f) => f (Signal a) -> Maybe (Signal a)
+mergeMany :: (Functor f, Foldable f) => f (Signal a) -> Maybe (Signal a)
 mergeMany sigs = foldl mergeMaybe Nothing (Just <$> sigs)
   where mergeMaybe a Nothing = a
         mergeMaybe Nothing a = a
@@ -56,83 +38,62 @@ mergeMany sigs = foldl mergeMaybe Nothing (Just <$> sigs)
 -- |Creates a past dependent signal. The function argument takes the value of
 -- |the input signal, and the previous value of the output signal, to produce
 -- |the new value of the output signal.
-foreign import foldp :: forall a b. (a -> b -> b) -> b -> (Signal a) -> (Signal b)
+foldp :: (a -> b -> b) -> b -> Signal a -> Signal b
+foldp = undefined
 
 -- |Creates a signal which yields the current value of the second signal every
 -- |time the first signal yields.
-foreign import sampleOn :: forall a b. (Signal a) -> (Signal b) -> (Signal b)
+sampleOn :: Signal a -> Signal b -> Signal b
+sampleOn = undefined
 
 -- |Create a signal which only yields values which aren't equal to the previous
 -- |value of the input signal.
-foreign import dropRepeats :: forall a. (Eq a) => Signal a -> Signal a
-
--- |Create a signal which only yields values which aren't equal to the previous
--- |value of the input signal, using JavaScript's `!==` operator to determine
--- |disequality.
-foreign import dropRepeats' :: forall a. (Signal a) -> (Signal a)
+dropRepeats :: (Eq a) => Signal a -> Signal a
+dropRepeats = undefined
 
 -- |Given a signal of effects with no return value, run each effect as it
 -- |comes in.
-foreign import runSignal :: forall e. Signal (Eff e Unit) -> Eff e Unit
+runSignal :: Signal (IO ()) -> IO ()
+runSignal = undefined
 
 -- |Takes a signal of effects of `a`, and produces an effect which returns a
 -- |signal which will take each effect produced by the input signal, run it,
 -- |and yield its returned value.
-foreign import unwrap :: forall e a. Signal (Eff e a) -> Eff e (Signal a)
+unwrap :: Signal (IO a) -> IO (Signal a)
+unwrap = undefined
 
 -- |Takes a signal and filters out yielded values for which the provided
 -- |predicate function returns `false`.
-foreign import filter :: forall a. (a -> Boolean) -> a -> (Signal a) -> (Signal a)
+filter :: (a -> Bool) -> a -> Signal a -> Signal a
+filter = undefined
 
 -- |Map a signal over a function which returns a `Maybe`, yielding only the
 -- |values inside `Just`s, dropping the `Nothing`s.
-filterMap :: forall a b. (a -> Maybe b) -> b -> Signal a -> Signal b
-filterMap f def sig = (fromMaybe def) <$> filter isJust (Just def) (f <$> sig)
+filterMap :: (a -> Maybe b) -> b -> Signal a -> Signal b
+filterMap f def sig = fromMaybe def <$> filter isJust (Just def) (f <$> sig)
 
 -- |Turns a signal of arrays of items into a signal of each item inside
 -- |each array, in order.
 -- |
 -- |Like `flatten`, but faster.
-foreign import flattenArray :: forall a. Signal (Array a) -> a -> Signal a
+flattenArray :: Signal [a] -> a -> Signal a
+flattenArray = undefined
 
 -- |Turns a signal of collections of items into a signal of each item inside
 -- |each collection, in order.
-flatten :: forall a f. (Functor f, Foldable f) => Signal (f a) -> a -> Signal a
-flatten sig = flattenArray (sig ~> map (\i -> [i]) >>> fold)
+flatten :: (Functor f, Foldable f) => Signal (f a) -> a -> Signal a
+flatten sig = flattenArray (sig ~> fold . fmap (: []) )
 
-instance functorSignal :: Functor Signal where
-  map = mapSig
+infix 4 ~>
+(~>) :: Signal a -> (a -> b) -> Signal b
+sig ~> f = fmap f sig
 
-instance applySignal :: Apply Signal where
-  apply = applySig
+instance Functor Signal where
+  fmap = mapSig
 
-instance applicativeSignal :: Applicative Signal where
+instance Applicative Signal where
   pure = constant
+  (<*>) = applySig
 
-instance semigroupSignal :: Semigroup (Signal a) where
-  append = merge
-
-infixl 4 squigglyMap as <~
-infixl 4 squigglyApply as ~
-infixl 4 flippedMap as ~>
-
-squigglyMap :: forall f a b. Functor f => (a -> b) -> f a -> f b
-squigglyMap = map
-
-squigglyApply :: forall f a b. Apply f => f (a -> b) -> f a -> f b
-squigglyApply = apply
-
-flippedMap :: forall f a b. Functor f => f a -> (a -> b) -> f b
-flippedMap = flip map
-
-map2 :: forall a b c. (a -> b -> c) -> Signal a -> Signal b -> Signal c
-map2 f a b = f <~ a ~ b
-
-map3 :: forall a b c d. (a -> b -> c -> d) -> Signal a -> Signal b -> Signal c -> Signal d
-map3 f a b c = f <~ a ~ b ~ c
-
-map4 :: forall a b c d e. (a -> b -> c -> d -> e) -> Signal a -> Signal b -> Signal c -> Signal d -> Signal e
-map4 f a b c d = f <~ a ~ b ~ c ~ d
-
-map5 :: forall a b c d e f. (a -> b -> c -> d -> e -> f) -> Signal a -> Signal b -> Signal c -> Signal d -> Signal e -> Signal f
-map5 f a b c d e = f <~ a ~ b ~ c ~ d ~ e
+instance Semigroup (Signal a) where
+  (<>) = merge

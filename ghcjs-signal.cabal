@@ -11,14 +11,14 @@ homepage:       https://github.com/NickSeagull/ghcjs-signal#readme
 bug-reports:    https://github.com/NickSeagull/ghcjs-signal/issues
 maintainer:     Nikita Tchayka
 license:        MIT
+license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
 
 extra-source-files:
-    CHANGELOG.md
-    LICENSE.md
     package.yaml
     README.md
+    stack.yaml
 
 source-repository head
   type: git
@@ -31,17 +31,10 @@ library
   build-depends:
       base
   exposed-modules:
-      Example
-  default-language: Haskell2010
-
-executable ghcjs-signal
-  main-is: Main.hs
-  hs-source-dirs:
-      executable
-  ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
-  build-depends:
-      base
-    , ghcjs-signal
+      Signal
+      Signal.Channel
+      Signal.DOM
+      Signal.Time
   default-language: Haskell2010
 
 test-suite ghcjs-signal-test-suite
@@ -53,8 +46,7 @@ test-suite ghcjs-signal-test-suite
   build-depends:
       base
     , ghcjs-signal
-    , tasty
-    , tasty-hspec
+    , hspec
   default-language: Haskell2010
 
 benchmark ghcjs-signal-benchmarks
