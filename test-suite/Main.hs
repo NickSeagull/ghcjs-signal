@@ -5,6 +5,7 @@ import Test.QuickCheck
 import Test.QuickCheck.Function
 import Test.QuickCheck.IO ()
 import Signal
+import SignalTester
 
 type A = Int
 type B = Int
@@ -12,7 +13,11 @@ type C = Int
 type (~>) a b = Fun a b
 
 main :: IO ()
-main = hspec $
+main = hspec $ do
+
+    describe "The Signal tester" $ do
+        it "can check if a Signal contains the values or not" $
+            constant "Foo" `shouldContainValues` ["Foo"] 
 
     describe "A Signal" $ do
 
@@ -37,7 +42,7 @@ main = hspec $
         it "is an applicative, it satisifies the interchange law" $ 
             property applicativeInterchange
 
-
+    
 
 functorIdentity :: A
                 -> IO ()
@@ -93,7 +98,7 @@ applicativeInterchange :: A
                        -> A ~> B
                        -> IO ()
 applicativeInterchange y _U = runSignal $
-    pure (\x -> x $ y) <*> apu
+    pure ($ y) <*> apu
     ~> ( `shouldBe` u y )
   where
     u = apply _U
