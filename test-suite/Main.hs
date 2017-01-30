@@ -32,6 +32,7 @@ functorIdentity x = runSignal $
     ~> id
     ~> ( `shouldBe` x )
 
+
 functorComposition :: (Fun Int Int)
                    -> (Fun Int Int)
                    -> Int
@@ -43,15 +44,19 @@ functorComposition f g x = runSignal $
     ~> ( `shouldBe` f_after_g x )
   where f_after_g = (apply f) . (apply g)
 
+
 applicativeIdentity :: Int
                     -> IO ()
 applicativeIdentity x = runSignal $
     pure id <*> pure x
     ~> ( `shouldBe` x )
 
+
 applicativeHomomorphism :: (Fun Int Int)
                         -> Int
                         -> IO ()
-applicativeHomomorphism f x = runSignal $
-    pure (apply f) <*> pure x
-    ~> ( `shouldBe` apply f x )
+applicativeHomomorphism _F x = runSignal $
+    pure f <*> pure x
+    ~> ( `shouldBe` f x )
+  where f = apply _F
+
