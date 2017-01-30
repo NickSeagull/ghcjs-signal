@@ -53,6 +53,8 @@ main = hspec $ do
         it "is able to map a function over each value that will be yielded" $
             ((* 2) <$> tick 1 1 [1,2,3]) `shouldYield` [2,4,6]
 
+
+
 functorIdentity :: A
                 -> IO ()
 functorIdentity x = 
@@ -120,6 +122,7 @@ semigroupMerge :: A
 semigroupMerge x y =
     (constant x <> constant y)
     `shouldYield` [x]
+
 
 semigroupMergeMany :: A
                    -> [A]
