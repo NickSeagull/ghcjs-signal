@@ -1,8 +1,15 @@
+{-# LANGUAGE TypeOperators #-}
+
 import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Function
 import Test.QuickCheck.IO ()
 import Signal
+
+type A = Int
+type B = Int
+type C = Int
+type (--->) a b = Fun a b
 
 main :: IO ()
 main = hspec $
@@ -25,7 +32,7 @@ main = hspec $
             property applicativeHomomorphism
 
 
-functorIdentity :: Int
+functorIdentity :: A
                 -> IO ()
 functorIdentity x = runSignal $ 
     constant x 
@@ -33,9 +40,9 @@ functorIdentity x = runSignal $
     ~> ( `shouldBe` x )
 
 
-functorComposition :: (Fun Int Int)
-                   -> (Fun Int Int)
-                   -> Int
+functorComposition :: A ---> B
+                   -> B ---> C
+                   -> A
                    -> IO ()
 functorComposition f g x = runSignal $
     constant x
@@ -45,15 +52,15 @@ functorComposition f g x = runSignal $
   where f_after_g = (apply f) . (apply g)
 
 
-applicativeIdentity :: Int
+applicativeIdentity :: A
                     -> IO ()
 applicativeIdentity x = runSignal $
     pure id <*> pure x
     ~> ( `shouldBe` x )
 
 
-applicativeHomomorphism :: (Fun Int Int)
-                        -> Int
+applicativeHomomorphism :: A ---> B
+                        -> A
                         -> IO ()
 applicativeHomomorphism _F x = runSignal $
     pure f <*> pure x
