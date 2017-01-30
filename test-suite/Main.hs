@@ -51,7 +51,7 @@ main = hspec $ do
             property semigroupMergeMany
 
         it "is able to map a function over each value that will be yielded" $
-            ((* 2) <$> tick 1 1 [1,2,3]) `shouldYield` [2,4,6]
+            property mapFunctionsProperty
 
 
 
@@ -133,3 +133,12 @@ semigroupMergeMany x xs =
   where
     testSignals = constant <$> (x:xs)
 
+
+mapFunctionsProperty :: [A]
+                     -> A ~> B
+                     -> Property
+mapFunctionsProperty lst _F =
+    length lst > 1 ==> 
+    (f <$> tick 1 1 lst ) `shouldYield` (f <$> lst)
+  where
+    f = apply _F
