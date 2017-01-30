@@ -1,5 +1,7 @@
 {-# LANGUAGE TypeOperators #-}
 
+import Prelude hiding (filter)
+
 import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Function
@@ -59,6 +61,15 @@ main = hspec $ do
         it "can reduce values with foldp" $
             foldp (+) 0 (tick 1 1 [1, 2, 3, 4, 5])
             `shouldYield` [1, 3, 6, 10, 15]
+
+        it "is able to filter out values with filter" $
+            filter (< 5) 0 (tick 1 1 [5, 3, 8, 4])
+            `shouldYield` [0, 3, 4]
+
+        it "is able to filter Maybe values with filterMap" $
+            filterMap (\n -> if n < 5 then Just n else Nothing)
+                 0 (tick 1 1 [5, 3, 8, 4]) 
+                 `shouldYield` [0, 3, 4]
 
 
 

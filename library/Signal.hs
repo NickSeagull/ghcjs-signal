@@ -3,7 +3,7 @@ module Signal where
 import Prelude hiding (filter)
 
 import Control.Applicative
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import Data.Functor
 import Data.Semigroup
 import Data.Foldable
@@ -115,7 +115,11 @@ unwrap = undefined
 -- |Takes a signal and filters out yielded values for which the provided
 -- |predicate function returns `false`.
 filter :: (a -> Bool) -> a -> Signal a -> Signal a
-filter = undefined
+filter fn seed sig = unsafePerformIO $ do
+  let out = make (if fn (get sig) then get sig else seed)
+  sig `subscribe` \val ->
+    when (fn val) (out `set` val)
+  return out
 
 -- |Map a signal over a function which returns a `Maybe`, yielding only the
 -- |values inside `Just`s, dropping the `Nothing`s.
