@@ -19,23 +19,24 @@ main = hspec $
         it "can contain an IO action, and is able to run it after" $
             runSignal $ constant (return ())
 
-        it "as a functor, satisfies the identity law" $ 
+        it "is a functor, it satisfies the identity law" $ 
             property functorIdentity
 
-        it "as a functor, satisfies the composition law" $ 
+        it "is a functor, it satisfies the composition law" $ 
             property functorComposition
 
-        it "as an applicative, satisifies the identity law" $ 
+        it "is an applicative, it satisifies the identity law" $ 
             property applicativeIdentity
 
-        it "as an applicative, satisifies the homomorphism law" $ 
+        it "is an applicative, it satisifies the homomorphism law" $ 
             property applicativeHomomorphism
 
-        it "as an applicative, satisifies the composition law" $ 
+        it "is an applicative, it satisifies the composition law" $ 
             property applicativeComposition
 
-        it "as an applicative, satisifies the interchange law" $ 
+        it "is an applicative, it satisifies the interchange law" $ 
             property applicativeInterchange
+
 
 
 functorIdentity :: A
