@@ -46,18 +46,18 @@ main = hspec $ do
 
 functorIdentity :: A
                 -> IO ()
-functorIdentity x = runSignal $ 
+functorIdentity x = 
     id <$> constant x 
-    ~> ( `shouldBe` x )
+    `shouldContainValues` [x]
 
 
 functorComposition :: A ~> B
                    -> B ~> C
                    -> A
                    -> IO ()
-functorComposition _F _G x = runSignal $
+functorComposition _F _G x = 
     f <$> g <$> constant x
-    ~> ( `shouldBe` f (g x) )
+    `shouldContainValues` [f (g x)]
   where 
     f = apply _F
     g = apply _G
@@ -65,17 +65,17 @@ functorComposition _F _G x = runSignal $
 
 applicativeIdentity :: A
                     -> IO ()
-applicativeIdentity x = runSignal $
+applicativeIdentity x =
     pure id <*> pure x
-    ~> ( `shouldBe` x )
+    `shouldContainValues` [x]
 
 
 applicativeHomomorphism :: A ~> B
                         -> A
                         -> IO ()
-applicativeHomomorphism _F x = runSignal $
+applicativeHomomorphism _F x =
     pure f <*> pure x
-    ~> ( `shouldBe` f x )
+    `shouldContainValues` [f x]
   where f = apply _F
 
 
@@ -83,9 +83,9 @@ applicativeComposition :: B ~> C
                        -> A ~> B
                        -> A
                        -> IO ()
-applicativeComposition _F _G x = runSignal $
+applicativeComposition _F _G x =
     pure (.) <*> apf <*> apg <*> apx
-    ~> ( `shouldBe` (f . g) x  )
+    `shouldContainValues` [(f . g) x]
   where
     f = apply _F
     g = apply _G
@@ -97,9 +97,9 @@ applicativeComposition _F _G x = runSignal $
 applicativeInterchange :: A
                        -> A ~> B
                        -> IO ()
-applicativeInterchange y _U = runSignal $
+applicativeInterchange y _U = 
     pure ($ y) <*> apu
-    ~> ( `shouldBe` u y )
+    `shouldContainValues` [u y]
   where
     u = apply _U
     apu = pure u
