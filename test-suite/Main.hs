@@ -21,6 +21,9 @@ main = hspec $
         it "is an applicative, satisifies the identity law" $ do
             property applicativeIdentity
 
+        it "is an applicative, satisifies the homomorphism law" $ do
+            property applicativeHomomorphism
+
 
 functorIdentity :: Int
                 -> IO ()
@@ -45,3 +48,10 @@ applicativeIdentity :: Int
 applicativeIdentity x = runSignal $
     pure id <*> pure x
     ~> ( `shouldBe` x )
+
+applicativeHomomorphism :: (Fun Int Int)
+                        -> Int
+                        -> IO ()
+applicativeHomomorphism f x = runSignal $
+    pure (apply f) <*> pure x
+    ~> ( `shouldBe` apply f x )
