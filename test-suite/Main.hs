@@ -34,6 +34,9 @@ main = hspec $
         it "is an applicative, satisifies the composition law" $ do
             property applicativeComposition
 
+        it "is an applicative, satisifies the interchange law" $ do
+            property applicativeInterchange
+
 
 functorIdentity :: A
                 -> IO ()
@@ -83,3 +86,14 @@ applicativeComposition _F _G x = runSignal $
     apf = pure f
     apg = pure g
     apx = pure x
+
+
+applicativeInterchange :: A
+                       -> A ~> B
+                       -> IO ()
+applicativeInterchange y _U = runSignal $
+    pure (\x -> x $ y) <*> apu
+    ~> ( `shouldBe` u y )
+  where
+    u = apply _U
+    apu = pure u
