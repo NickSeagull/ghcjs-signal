@@ -4,6 +4,7 @@ import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Function
 import Test.QuickCheck.IO ()
+import Data.Semigroup
 import Signal
 import SignalTester
 
@@ -17,7 +18,7 @@ main = hspec $ do
 
     describe "The Signal tester" $ do
         it "can check if a Signal contains the values or not" $
-            constant "Foo" `shouldContainValues` ["Foo"] 
+            constant "Foo" `shouldYield` ["Foo"] 
 
     describe "A Signal" $ do
 
@@ -42,13 +43,15 @@ main = hspec $ do
         it "is an applicative, it satisifies the interchange law" $ 
             property applicativeInterchange
 
+        it "is able to merge with another signal, yielding in order" $
+            property semigroupMerge
     
 
 functorIdentity :: A
                 -> IO ()
 functorIdentity x = 
-    id <$> constant x 
-    `shouldContainValues` [x]
+    (id <$> constant x)
+    `shouldYield` [x]
 
 
 functorComposition :: A ~> B
@@ -56,8 +59,8 @@ functorComposition :: A ~> B
                    -> A
                    -> IO ()
 functorComposition _F _G x = 
-    f <$> g <$> constant x
-    `shouldContainValues` [f (g x)]
+    (f <$> g <$> constant x)
+    `shouldYield` [f (g x)]
   where 
     f = apply _F
     g = apply _G
@@ -66,16 +69,16 @@ functorComposition _F _G x =
 applicativeIdentity :: A
                     -> IO ()
 applicativeIdentity x =
-    pure id <*> pure x
-    `shouldContainValues` [x]
+    (pure id <*> pure x)
+    `shouldYield` [x]
 
 
 applicativeHomomorphism :: A ~> B
                         -> A
                         -> IO ()
 applicativeHomomorphism _F x =
-    pure f <*> pure x
-    `shouldContainValues` [f x]
+    (pure f <*> pure x)
+    `shouldYield` [f x]
   where f = apply _F
 
 
@@ -84,8 +87,8 @@ applicativeComposition :: B ~> C
                        -> A
                        -> IO ()
 applicativeComposition _F _G x =
-    pure (.) <*> apf <*> apg <*> apx
-    `shouldContainValues` [(f . g) x]
+    (pure (.) <*> apf <*> apg <*> apx)
+    `shouldYield` [(f . g) x]
   where
     f = apply _F
     g = apply _G
@@ -98,8 +101,16 @@ applicativeInterchange :: A
                        -> A ~> B
                        -> IO ()
 applicativeInterchange y _U = 
-    pure ($ y) <*> apu
-    `shouldContainValues` [u y]
+    (pure ($ y) <*> apu)
+    `shouldYield` [u y]
   where
     u = apply _U
     apu = pure u
+
+
+semigroupMerge :: A
+               -> A
+               -> IO ()
+semigroupMerge x y =
+    (constant x <> constant y)
+    `shouldYield` [x]

@@ -1,16 +1,16 @@
 module SignalTester
-    ( shouldContainValues
+    ( shouldYield
     )
 where
 
 import Signal
 import Data.IORef
 
-shouldContainValues :: (Eq a, Show a)
+shouldYield :: (Eq a, Show a)
               => Signal a
               -> [a]
               -> IO ()
-shouldContainValues sig vals = do
+shouldYield sig vals = do
     remaining <- newIORef vals
     let getNext val = do
             nextValues <- readIORef remaining

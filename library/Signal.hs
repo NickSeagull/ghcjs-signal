@@ -7,21 +7,58 @@ import Data.Functor
 import Data.Semigroup
 import Data.Foldable
 import Data.Maybe
+import Data.IORef
+import System.IO.Unsafe
 
-newtype Signal a = Signal a
+data Signal a = Signal
+  { get :: a
+  , set :: a -> IO ()
+  , subscribe :: (a -> IO ()) -> IO ()
+  }
+
+unsafeRef :: a -> IORef a
+unsafeRef = unsafePerformIO . newIORef
+
+unsafeRead :: IORef a -> a
+unsafeRead = unsafePerformIO . readIORef
+
+make :: a -> Signal a
+make initial = unsafePerformIO $ do
+  subs <- newIORef [] :: IO (IORef [a -> IO()])
+  val  <- newIORef initial
+  let _get = unsafeRead val
+  let _set newval = do
+        writeIORef val newval
+        forM_ (unsafeRead subs) $ \sub ->
+          sub newval
+  let _subscribe sub = do
+        currentSubs <- readIORef subs
+        _val <- readIORef val
+        writeIORef subs $ currentSubs <> [sub]
+        sub _val
+  return Signal
+    { get = _get
+    , set = _set
+    , subscribe = _subscribe
+    }
+         
+
+
+
 
 -- |Creates a signal with a constant value.
 constant :: a -> Signal a
-constant = Signal
-
-applySig :: Signal (a -> b) -> Signal a -> Signal b
-applySig = undefined
+constant = make
 
 -- |Merge two signals, returning a new signal which will yield a value
 -- |whenever either of the input signals yield. Its initial value will be
 -- |that of the first signal.
 merge :: Signal a -> Signal a -> Signal a
-merge = undefined
+merge sig1 sig2 = unsafePerformIO $ do
+  let out = constant $ get sig1
+  sig2 `subscribe` set out
+  sig1 `subscribe` set out
+  return out
 
 -- |Merge all signals inside a `Foldable`, returning a `Maybe` which will
 -- |either contain the resulting signal, or `Nothing` if the `Foldable`
@@ -51,7 +88,9 @@ dropRepeats = undefined
 -- |Given a signal of effects with no return value, run each effect as it
 -- |comes in.
 runSignal :: Signal (IO ()) -> IO ()
-runSignal (Signal action) = action
+runSignal sig = do
+  sig `subscribe` \val -> val
+
 
 -- |Takes a signal of effects of `a`, and produces an effect which returns a
 -- |signal which will take each effect produced by the input signal, run it,
@@ -86,11 +125,20 @@ infixl 4 ~>
 sig ~> f = fmap f sig
 
 instance Functor Signal where
-  fmap f (Signal value) = Signal $ f value
+  fmap fun sig = unsafePerformIO $ do
+    let out = make $ fun $ get sig
+    sig `subscribe` \val -> out `set` fun val
+    return out
 
 instance Applicative Signal where
   pure = constant
-  (Signal f) <*> (Signal v) = Signal $ f v
+  fun <*> sig = unsafePerformIO $ do
+    let f = get fun
+    let out = make $ f (get sig)
+    let produce = const $ out `set` f (get sig)
+    fun `subscribe` produce
+    sig `subscribe` produce
+    return out
 
 instance Semigroup (Signal a) where
   (<>) = merge
