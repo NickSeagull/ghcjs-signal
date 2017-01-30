@@ -55,6 +55,10 @@ main = hspec $ do
 
         it "is able to drop repeated values in a sequence" $
             property dropRepeatsProperty
+        
+        it "can reduce values with foldp" $
+            foldp (+) 0 (tick 1 1 [1, 2, 3, 4, 5])
+            `shouldYield` [1, 3, 6, 10, 15]
 
 
 

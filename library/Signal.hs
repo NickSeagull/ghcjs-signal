@@ -74,7 +74,15 @@ mergeMany sigs = foldl mergeMaybe Nothing (Just <$> sigs)
 -- |the input signal, and the previous value of the output signal, to produce
 -- |the new value of the output signal.
 foldp :: (a -> b -> b) -> b -> Signal a -> Signal b
-foldp = undefined
+foldp fun seed sig = unsafePerformIO $ do
+  acc <- newIORef seed
+  let out = make seed
+  sig `subscribe` \val -> do
+    acc' <- readIORef acc
+    writeIORef acc $ fun val acc'
+    acc'' <- readIORef acc
+    out `set` acc''
+  return out
 
 -- |Creates a signal which yields the current value of the second signal every
 -- |time the first signal yields.
