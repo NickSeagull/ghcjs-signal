@@ -90,7 +90,7 @@ instance Functor Signal where
 
 instance Applicative Signal where
   pure = constant
-  (<*>) = applySig
+  (Signal f) <*> (Signal v) = Signal $ f v
 
 instance Semigroup (Signal a) where
   (<>) = merge

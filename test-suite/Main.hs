@@ -18,7 +18,12 @@ main = hspec $
         it "is a functor, so it composes" $ do
             property functorComposition
 
-functorIdentity :: Int -> IO ()
+        it "is an applicative, satisifies the identity law" $ do
+            property applicativeIdentity
+
+
+functorIdentity :: Int
+                -> IO ()
 functorIdentity x = runSignal $ 
     constant x 
     ~> id
@@ -34,3 +39,9 @@ functorComposition f g x = runSignal $
     ~> (apply f)
     ~> ( `shouldBe` f_after_g x )
   where f_after_g = (apply f) . (apply g)
+
+applicativeIdentity :: Int
+                    -> IO ()
+applicativeIdentity x = runSignal $
+    (pure id <*> pure x)
+    ~> ( `shouldBe` x )
