@@ -44,12 +44,14 @@ functorComposition :: A ~> B
                    -> B ~> C
                    -> A
                    -> IO ()
-functorComposition f g x = runSignal $
+functorComposition _F _G x = runSignal $
     constant x
-    ~> (apply g)
-    ~> (apply f)
-    ~> ( `shouldBe` f_after_g x )
-  where f_after_g = (apply f) . (apply g)
+    ~> g
+    ~> f
+    ~> ( `shouldBe` f (g x) )
+  where 
+    f = apply _F
+    g = apply _G
 
 
 applicativeIdentity :: A
