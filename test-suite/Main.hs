@@ -35,8 +35,7 @@ main = hspec $
 functorIdentity :: A
                 -> IO ()
 functorIdentity x = runSignal $ 
-    constant x 
-    ~> id
+    id <$> constant x 
     ~> ( `shouldBe` x )
 
 
@@ -45,9 +44,7 @@ functorComposition :: A ~> B
                    -> A
                    -> IO ()
 functorComposition _F _G x = runSignal $
-    constant x
-    ~> g
-    ~> f
+    f <$> g <$> constant x
     ~> ( `shouldBe` f (g x) )
   where 
     f = apply _F
