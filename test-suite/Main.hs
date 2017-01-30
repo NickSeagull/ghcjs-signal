@@ -54,8 +54,7 @@ main = hspec $ do
             property mapFunctionsProperty
 
         it "is able to drop repeated values in a sequence" $
-            (dropRepeats $ tick 1 1 [1, 1, 2, 2, 1, 3, 3])
-            `shouldYield` [1, 2, 1, 3]
+            property dropRepeatsProperty
 
 
 
@@ -146,3 +145,12 @@ mapFunctionsProperty lst _F =
     (f <$> tick 1 1 lst ) `shouldYield` (f <$> lst)
   where
     f = apply _F
+
+
+dropRepeatsProperty :: [A]
+                    -> Property
+dropRepeatsProperty lst =
+    length lst > 1 ==>
+    dropRepeats (tick 1 1 duplicated) `shouldYield` lst
+  where
+    duplicated = concatMap (\ x -> [x, x]) lst
