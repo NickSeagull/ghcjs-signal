@@ -5,6 +5,7 @@ import Test.QuickCheck
 import Test.QuickCheck.Function
 import Test.QuickCheck.IO ()
 import Data.Semigroup
+import Data.Maybe
 import Signal
 import SignalTester
 
@@ -46,6 +47,8 @@ main = hspec $ do
         it "is able to merge with another signal, yielding in order" $
             property semigroupMerge
     
+        it "is able to merge with multiple signals, yielding in order" $
+            property semigroupMergeMany
 
 functorIdentity :: A
                 -> IO ()
@@ -114,3 +117,12 @@ semigroupMerge :: A
 semigroupMerge x y =
     (constant x <> constant y)
     `shouldYield` [x]
+
+semigroupMergeMany :: A
+                   -> [A]
+                   -> IO ()
+semigroupMergeMany x xs =
+    fromMaybe (constant 1337) (mergeMany testSignals)
+    `shouldYield` [x]
+  where
+    testSignals = constant <$> (x:xs)
