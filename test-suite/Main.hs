@@ -1,5 +1,6 @@
 import Test.Hspec
 import Test.QuickCheck
+import Test.QuickCheck.Function
 import Test.QuickCheck.IO ()
 import Signal
 
@@ -11,11 +12,25 @@ main = hspec $
         it "can contain an IO action, and is able to run it after" $
             runSignal $ constant (return ())
 
-        it "is a functor, so it can be mapped over" $ do
-            property functorProperty
+        it "is a functor, so it preserves identity" $ do
+            property functorIdentity
 
-functorProperty :: Int -> Int -> IO ()
-functorProperty x y = runSignal $ 
+        it "is a functor, so it composes" $ do
+            property functorComposition
+
+functorIdentity :: Int -> IO ()
+functorIdentity x = runSignal $ 
     constant x 
-    ~> (+ y)
-    ~> (`shouldBe` x + y)
+    ~> id
+    ~> ( `shouldBe` x )
+
+functorComposition :: (Fun Int Int)
+                   -> (Fun Int Int)
+                   -> Int
+                   -> IO ()
+functorComposition f g x = runSignal $
+    constant x
+    ~> (apply g)
+    ~> (apply f)
+    ~> ( `shouldBe` f_after_g x )
+  where f_after_g = (apply f) . (apply g)
