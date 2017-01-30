@@ -9,7 +9,7 @@ import Signal
 type A = Int
 type B = Int
 type C = Int
-type (--->) a b = Fun a b
+type (~>) a b = Fun a b
 
 main :: IO ()
 main = hspec $
@@ -40,8 +40,8 @@ functorIdentity x = runSignal $
     ~> ( `shouldBe` x )
 
 
-functorComposition :: A ---> B
-                   -> B ---> C
+functorComposition :: A ~> B
+                   -> B ~> C
                    -> A
                    -> IO ()
 functorComposition f g x = runSignal $
@@ -59,7 +59,7 @@ applicativeIdentity x = runSignal $
     ~> ( `shouldBe` x )
 
 
-applicativeHomomorphism :: A ---> B
+applicativeHomomorphism :: A ~> B
                         -> A
                         -> IO ()
 applicativeHomomorphism _F x = runSignal $
