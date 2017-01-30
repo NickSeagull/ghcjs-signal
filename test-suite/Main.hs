@@ -17,7 +17,7 @@ type (~>) a b = Fun a b
 main :: IO ()
 main = hspec $ do
 
-    describe "The Signal tester" $ do
+    describe "The Signal tester" $ 
         it "can check if a Signal contains the values or not" $
             constant "Foo" `shouldYield` ["Foo"] 
 
@@ -49,6 +49,9 @@ main = hspec $ do
     
         it "is able to merge with multiple signals, yielding in order" $
             property semigroupMergeMany
+
+        it "is able to map a function over each value that will be yielded" $
+            ((* 2) <$> tick 1 1 [1,2,3]) `shouldYield` [2,4,6]
 
 functorIdentity :: A
                 -> IO ()
@@ -126,3 +129,4 @@ semigroupMergeMany x xs =
     `shouldYield` [x]
   where
     testSignals = constant <$> (x:xs)
+
