@@ -43,5 +43,5 @@ functorComposition f g x = runSignal $
 applicativeIdentity :: Int
                     -> IO ()
 applicativeIdentity x = runSignal $
-    (pure id <*> pure x)
+    pure id <*> pure x
     ~> ( `shouldBe` x )
