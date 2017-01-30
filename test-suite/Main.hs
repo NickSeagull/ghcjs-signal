@@ -53,6 +53,10 @@ main = hspec $ do
         it "is able to map a function over each value that will be yielded" $
             property mapFunctionsProperty
 
+        it "is able to drop repeated values in a sequence" $
+            (dropRepeats $ tick 1 1 [1, 1, 2, 2, 1, 3, 3])
+            `shouldYield` [1, 2, 1, 3]
+
 
 
 functorIdentity :: A

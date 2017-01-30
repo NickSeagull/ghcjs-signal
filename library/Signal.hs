@@ -3,6 +3,7 @@ module Signal where
 import Prelude hiding (filter)
 
 import Control.Applicative
+import Control.Monad (unless)
 import Data.Functor
 import Data.Semigroup
 import Data.Foldable
@@ -83,7 +84,12 @@ sampleOn = undefined
 -- |Create a signal which only yields values which aren't equal to the previous
 -- |value of the input signal.
 dropRepeats :: (Eq a) => Signal a -> Signal a
-dropRepeats = undefined
+dropRepeats sig = unsafePerformIO $ do
+  let val = get sig
+  let out = make val
+  sig `subscribe` \newval ->
+    unless (val == newval) (out `set` val)
+  return out
 
 -- |Given a signal of effects with no return value, run each effect as it
 -- |comes in.
