@@ -31,6 +31,9 @@ main = hspec $
         it "is an applicative, satisifies the homomorphism law" $ do
             property applicativeHomomorphism
 
+        it "is an applicative, satisifies the composition law" $ do
+            property applicativeComposition
+
 
 functorIdentity :: A
                 -> IO ()
@@ -66,3 +69,17 @@ applicativeHomomorphism _F x = runSignal $
     ~> ( `shouldBe` f x )
   where f = apply _F
 
+
+applicativeComposition :: B ~> C
+                       -> A ~> B
+                       -> A
+                       -> IO ()
+applicativeComposition _F _G x = runSignal $
+    pure (.) <*> apf <*> apg <*> apx
+    ~> ( `shouldBe` (f . g) x  )
+  where
+    f = apply _F
+    g = apply _G
+    apf = pure f
+    apg = pure g
+    apx = pure x
