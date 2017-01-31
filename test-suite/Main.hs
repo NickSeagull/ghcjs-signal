@@ -17,7 +17,7 @@ type C = Int
 type (~>) a b = Fun a b
 
 main :: IO ()
-main = hspec $ do
+main = hspec $ parallel $ do
 
     describe "The Signal tester" $ 
         it "can check if a Signal contains the values or not" $
@@ -70,6 +70,10 @@ main = hspec $ do
             filterMap (\n -> if n < 5 then Just n else Nothing)
                  0 (tick 1 1 [5, 3, 8, 4]) 
                  `shouldYield` [0, 3, 4]
+
+        it "is able to flatten the values" $
+            flatten (tick 1 1 [[1, 2], [3, 4], [], [5, 6, 7]]) 0
+            `shouldYield` [1, 2, 3, 4, 5, 6, 7]
 
 
 

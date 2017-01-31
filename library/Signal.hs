@@ -130,12 +130,31 @@ filterMap f def sig = fromMaybe def <$> filter isJust (Just def) (f <$> sig)
 -- |each array, in order.
 -- |
 -- |Like `flatten`, but faster.
-flattenArray :: Signal [a] -> a -> Signal a
-flattenArray = undefined
+flattenArray :: Show a => Signal [a] -> a -> Signal a
+flattenArray sig seed = unsafePerformIO $ do
+  firstRef <- newIORef $ get sig
+  seedRef <- newIORef seed
+  first <- readIORef firstRef
+  print first
+  if length first > 0
+    then writeIORef seedRef (head first)
+    else writeIORef firstRef []
+  seed <- readIORef seedRef
+  let out = make seed
+  let feed items = mapM_ (set out) items
+  sig `subscribe` \val -> do
+    first <- readIORef firstRef
+    if length first < 0
+      then do
+        feed val
+      else do
+        feed (tail first)
+        writeIORef firstRef []
+  return out
 
 -- |Turns a signal of collections of items into a signal of each item inside
 -- |each collection, in order.
-flatten :: (Functor f, Foldable f) => Signal (f a) -> a -> Signal a
+flatten :: (Functor f, Foldable f, Show a) => Signal (f a) -> a -> Signal a
 flatten sig = flattenArray (sig ~> fold . fmap (: []) )
 
 infixl 4 ~>
