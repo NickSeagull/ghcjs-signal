@@ -36,7 +36,7 @@ in turn—in our case, just the one effect which prints `"Hello Joe!"` to the co
 
 ## API Documentation
 
-* TODO: Add to hackage
+* [Module documentation on Pursuit](https://hackage.haskell.org/package/ramus)
 
 ## Usage Examples
 
