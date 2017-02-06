@@ -126,36 +126,40 @@ filter fn seed sig = unsafePerformIO $ do
 filterMap :: (a -> Maybe b) -> b -> Signal a -> Signal b
 filterMap f def sig = fromMaybe def <$> filter isJust (Just def) (f <$> sig)
 
+{-}
 -- |Turns a signal of arrays of items into a signal of each item inside
 -- |each array, in order.
 -- |
 -- |Like `flatten`, but faster.
 flattenArray :: Show a => Signal [a] -> a -> Signal a
 flattenArray sig seed = unsafePerformIO $ do
-  firstRef <- newIORef $ get sig
+  firstRef <- newIORef (Just $ get sig)
   seedRef <- newIORef seed
   first <- readIORef firstRef
-  print first
-  if length first > 0
-    then writeIORef seedRef (head first)
-    else writeIORef firstRef []
+  print $ "Read first:" ++ show first
+  case first of
+    Just x -> writeIORef seedRef (head x)
+    Nothing -> writeIORef firstRef Nothing
   seed <- readIORef seedRef
   let out = make seed
-  let feed items = mapM_ (set out) items
+  let sset x = do
+          print $ "Feeding value: " ++ show x
+          set out x
+  let feed items = mapM_ sset items
   sig `subscribe` \val -> do
     first <- readIORef firstRef
-    if length first < 0
-      then do
-        feed val
-      else do
-        feed (tail first)
-        writeIORef firstRef []
+    case first of
+      Nothing -> feed val
+      Just x -> do
+        feed $ tail x
+        writeIORef firstRef Nothing
   return out
 
 -- |Turns a signal of collections of items into a signal of each item inside
 -- |each collection, in order.
 flatten :: (Functor f, Foldable f, Show a) => Signal (f a) -> a -> Signal a
 flatten sig = flattenArray (sig ~> fold . fmap (: []) )
+-}
 
 infixl 4 ~>
 (~>) :: Signal a -> (a -> b) -> Signal b
