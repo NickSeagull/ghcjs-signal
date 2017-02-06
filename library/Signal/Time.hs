@@ -45,7 +45,35 @@ delay t sig = unsafePerformIO $ do
 -- |number of milliseconds have elapsed, unless the input signal yields again
 -- |in the interim.
 since :: Time -> Signal a -> Signal Bool
-since = undefined
+since t sig = unsafePerformIO $ do
+  let out = make False
+  firstRef <- newIORef True
+  timerRef <- newIORef Nothing
+  let tick = do
+          out `set` False
+          writeIORef timerRef Nothing
+  sig `subscribe` \val -> do
+    first <- readIORef firstRef
+    if first
+      then writeIORef firstRef False
+      else do
+        timer <- readIORef timerRef
+        case timer of
+          Nothing -> do
+            out `set` True
+            tim <- forkIO $ do
+              threadDelay (round $ t * 1000)
+              tick
+            writeIORef timerRef $ Just tim           
+
+          Just tim -> do
+            killThread tim
+            tim' <- forkIO $ do
+              threadDelay (round $ t * 1000)
+              tick
+            writeIORef timerRef $ Just tim'
+  return out
+
 
 -- |Takes a signal and a time value, and creates a signal which waits to yield
 -- |the next result until the specified amount of time has elapsed. It then

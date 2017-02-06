@@ -87,6 +87,10 @@ main = hspec $ parallel $ do
             delay 40.0 (tick 1 1 [1, 2, 3, 4, 5])
             `shouldYield` [1, 2, 3, 4, 5]
 
+        it "yields true only once for multiple yields with since" $
+            since 10.0 (tick 1 1 [1, 2, 3])
+            `shouldYield` [False, True, False]
+
 
     describe "A Channel" $ do
 
