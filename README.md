@@ -2,7 +2,7 @@
 
 Ramus is a lightweight FRP-like library heavily inspired by the Elm Signal implementation,
 in fact, is a direct port of the [purescript-signal](https://github.com/bodil/purescript-signal) library,
-but in Haskell.
+in Haskell.
 Where possible and sensible, it tries to maintain API equivalence with Elm.
 
 See [the Elm documentation](http://elm-lang.org:1234/guide/reactivity#signals) for details on usage and principles.
@@ -10,7 +10,7 @@ See [the Elm documentation](http://elm-lang.org:1234/guide/reactivity#signals) f
 ## Haskell Usage Patterns
 
 Haskell depends on `IO` to manage side effects, where Elm's runtime generally manages them for you.
-`purescript-signal` provides the `Signal.runSignal` function for running effectful signals.
+`ramus` provides the `Signal.runSignal` function for running effectful signals.
 
 ```haskell
 module Main where
