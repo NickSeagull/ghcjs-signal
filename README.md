@@ -1,7 +1,7 @@
 # Ramus
 
 Ramus is a lightweight FRP-like library heavily inspired by the Elm Signal implementation,
-in fact, is a direct port of the [purescript-signal](https://github.com/bodil/purescript-signal) library,
+in fact, it's a direct port of the [purescript-signal](https://github.com/bodil/purescript-signal) library,
 in Haskell.
 Where possible and sensible, it tries to maintain API equivalence with Elm.
 
