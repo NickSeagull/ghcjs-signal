@@ -11,6 +11,7 @@ import Data.Maybe
 import Ramus.Signal
 import Ramus.Channel as Channel
 import Ramus.Time
+import Ramus.Internal
 import SignalTester
 
 type A = Int

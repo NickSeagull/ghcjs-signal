@@ -1,6 +1,7 @@
 module Ramus.Channel where
 
 import Ramus.Signal
+import Ramus.Internal
 
 newtype Channel a = Channel (Signal a)
 

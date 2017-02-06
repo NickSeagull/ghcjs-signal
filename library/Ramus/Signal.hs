@@ -1,7 +1,23 @@
-module Ramus.Signal where
+module Ramus.Signal 
+  ( Signal ()
+  , constant
+  , merge
+  , mergeMany
+  , foldp
+  , sampleOn
+  , dropRepeats
+  , runSignal
+  -- , unwrap
+  , filter
+  , filterMap
+  -- , flatten
+  -- , flattenArray
+  , 
+  ) where
 
 import Prelude hiding (filter)
 
+import Ramus.Internal
 import Control.Applicative ()
 import Control.Monad (unless, when)
 import Data.Functor ()
@@ -10,41 +26,6 @@ import Data.Foldable
 import Data.Maybe
 import Data.IORef
 import System.IO.Unsafe
-
-data Signal a = Signal
-  { get :: a
-  , set :: a -> IO ()
-  , subscribe :: (a -> IO ()) -> IO ()
-  }
-
-unsafeRef :: a -> IORef a
-unsafeRef = unsafePerformIO . newIORef
-
-unsafeRead :: IORef a -> a
-unsafeRead = unsafePerformIO . readIORef
-
-make :: a -> Signal a
-make initial = unsafePerformIO $ do
-  subs <- newIORef [] :: IO (IORef [a -> IO()])
-  val  <- newIORef initial
-  let _get = unsafeRead val
-  let _set newval = do
-        writeIORef val newval
-        forM_ (unsafeRead subs) $ \sub ->
-          sub newval
-  let _subscribe sub = do
-        currentSubs <- readIORef subs
-        _val <- readIORef val
-        writeIORef subs $ currentSubs <> [sub]
-        sub _val
-  return Signal
-    { get = _get
-    , set = _set
-    , subscribe = _subscribe
-    }
-         
-
-
 
 
 -- |Creates a signal with a constant value.
@@ -162,8 +143,22 @@ flatten sig = flattenArray (sig ~> fold . fmap (: []) )
 -}
 
 infixl 4 ~>
+-- | Flipped map operator
 (~>) :: Signal a -> (a -> b) -> Signal b
-sig ~> f = fmap f sig
+(~>) = flip fmap 
+
+infixl 4 <~
+-- | map operator
+(<~) :: (a -> b) -> Signal a -> Signal b
+(<~) = fmap
+
+infixl 4 ~~
+-- | Signal application.
+-- | Note that it is a double tilde, differing from 
+-- | purescript-signal, as a single tilde is used
+-- | in Haskell for lazy evaluation.
+(~~) :: Signal (a -> b) -> Signal a -> Signal b
+(~~) = (<*>)
 
 instance Functor Signal where
   fmap fun sig = unsafePerformIO $ do
@@ -183,3 +178,15 @@ instance Applicative Signal where
 
 instance Semigroup (Signal a) where
   (<>) = merge
+
+map2 :: (a -> b -> c) -> Signal a -> Signal b -> Signal c
+map2 f a b = f <~ a ~~ b
+
+map3 :: (a -> b -> c -> d) -> Signal a -> Signal b -> Signal c -> Signal d
+map3 f a b c = f <~ a ~~ b ~~ c
+
+map4 :: (a -> b -> c -> d -> e) -> Signal a -> Signal b -> Signal c -> Signal d -> Signal e
+map4 f a b c d = f <~ a ~~ b ~~ c ~~ d
+
+map5 :: (a -> b -> c -> d -> e -> f) -> Signal a -> Signal b -> Signal c -> Signal d -> Signal e -> Signal f
+map5 f a b c d e = f <~ a ~~ b ~~ c ~~ d ~~ e

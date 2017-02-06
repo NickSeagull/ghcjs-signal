@@ -1,4 +1,4 @@
-module Ramus.DOM where
+module Ramus.DOM () where
 
 import Ramus.Signal
 import Ramus.Time
@@ -42,11 +42,7 @@ touch = undefined
 -- |A signal which will be `true` when at least one finger is touching the
 -- |touch device, and `false` otherwise.
 tap :: IO (Signal Bool)
-tap = do
-  touches <- touch
-  pure $ touches ~> \t -> case t of
-    [] -> False
-    _ -> True
+tap = undefined
 
 -- |A signal containing the current mouse position.
 mousePos :: IO (Signal CoordinatePair)

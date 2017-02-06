@@ -2,6 +2,7 @@ module Ramus.Time where
 
 import Prelude hiding (filter)
 import Ramus.Signal
+import Ramus.Internal
 import Control.Concurrent
 import Data.IORef
 import System.IO.Unsafe

@@ -4,7 +4,7 @@
 benchmarks:
   ramus-benchmarks:
     dependencies:
-    - base
+    - base == 4.*
     - ramus
     - criterion
     ghc-options:
@@ -25,7 +25,7 @@ ghc-options: -Wall
 github: NickSeagull/ramus
 library:
   dependencies:
-  - base
+  - base == 4.*
   source-dirs: library
 license: MIT
 maintainer: Nikita Tchayka
@@ -34,7 +34,7 @@ synopsis: Elm signal system for Haskell
 tests:
   ramus-test-suite:
     dependencies:
-    - base
+    - base == 4.*
     - ramus
     - hspec
     - QuickCheck
@@ -45,4 +45,4 @@ tests:
     - -with-rtsopts=-N
     main: Main.hs
     source-dirs: test-suite
-version: '0.0.1'
+version: '0.1.1'

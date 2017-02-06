@@ -5,6 +5,7 @@ module SignalTester
 where
 
 import Ramus.Signal
+import Ramus.Internal
 import Data.IORef
 import Control.Monad (unless)
 import System.IO.Unsafe
