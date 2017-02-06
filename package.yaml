@@ -2,10 +2,10 @@
 # Cabal file when you run `stack build`. See the hpack website for help with
 # this file: <https://github.com/sol/hpack>.
 benchmarks:
-  ghcjs-signal-benchmarks:
+  ramus-benchmarks:
     dependencies:
     - base
-    - ghcjs-signal
+    - ramus
     - criterion
     ghc-options:
     - -rtsopts
@@ -14,7 +14,7 @@ benchmarks:
     main: Main.hs
     source-dirs: benchmark
 category: Other
-description: ghcjs-signal is a new Haskeleton package.
+description: Ramus is a direct port of purescript-signal into Haskell, offering the Elm signal system for Haskell.
 extra-source-files:
 - CHANGELOG.md
 - LICENSE.md
@@ -22,20 +22,20 @@ extra-source-files:
 - README.md
 - stack.yaml
 ghc-options: -Wall
-github: NickSeagull/ghcjs-signal
+github: NickSeagull/ramus
 library:
   dependencies:
   - base
   source-dirs: library
 license: MIT
 maintainer: Nikita Tchayka
-name: ghcjs-signal
-synopsis: A new Haskeleton package.
+name: ramus
+synopsis: Elm signal system for Haskell
 tests:
-  ghcjs-signal-test-suite:
+  ramus-test-suite:
     dependencies:
     - base
-    - ghcjs-signal
+    - ramus
     - hspec
     - QuickCheck
     - quickcheck-io

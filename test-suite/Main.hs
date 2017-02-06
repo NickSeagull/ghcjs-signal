@@ -8,9 +8,9 @@ import Test.QuickCheck.Function
 import Test.QuickCheck.IO ()
 import Data.Semigroup
 import Data.Maybe
-import Signal
-import Signal.Channel as Channel
-import Signal.Time
+import Ramus.Signal
+import Ramus.Channel as Channel
+import Ramus.Time
 import SignalTester
 
 type A = Int
