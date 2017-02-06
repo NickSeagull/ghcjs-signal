@@ -9,6 +9,7 @@ import Test.QuickCheck.IO ()
 import Data.Semigroup
 import Data.Maybe
 import Signal
+import Signal.Channel as Channel
 import SignalTester
 
 type A = Int
@@ -81,6 +82,13 @@ main = hspec $ parallel $ do
             foldp (+) 0 (tick 1 1 [1, 2, 3, 4, 5])
             `shouldYield` [1, 3, 6, 10, 15]
 
+
+    describe "A Channel" $ do
+
+        it "'s subscriptions yield when we send to it" $ do
+            chan <- Channel.channel 1
+            runSignal $ tick 1 1 [2, 3, 4] ~> Channel.send chan
+            Channel.subscribe chan `shouldYield` [2, 3, 4]
 
 
 functorIdentity :: A
