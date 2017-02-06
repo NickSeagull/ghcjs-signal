@@ -77,6 +77,10 @@ main = hspec $ parallel $ do
             `shouldYield` [1, 2, 3, 4, 5, 6, 7]
         -}
 
+        it "is able to sum values with foldp" $
+            foldp (+) 0 (tick 1 1 [1, 2, 3, 4, 5])
+            `shouldYield` [1, 3, 6, 10, 15]
+
 
 
 functorIdentity :: A
