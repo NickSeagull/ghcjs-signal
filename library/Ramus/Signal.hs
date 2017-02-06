@@ -2,9 +2,9 @@ module Ramus.Signal where
 
 import Prelude hiding (filter)
 
-import Control.Applicative
+import Control.Applicative ()
 import Control.Monad (unless, when)
-import Data.Functor
+import Data.Functor ()
 import Data.Semigroup
 import Data.Foldable
 import Data.Maybe
