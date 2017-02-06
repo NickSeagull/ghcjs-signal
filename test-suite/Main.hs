@@ -10,6 +10,7 @@ import Data.Semigroup
 import Data.Maybe
 import Signal
 import Signal.Channel as Channel
+import Signal.Time
 import SignalTester
 
 type A = Int
@@ -81,6 +82,10 @@ main = hspec $ parallel $ do
         it "is able to sum values with foldp" $
             foldp (+) 0 (tick 1 1 [1, 2, 3, 4, 5])
             `shouldYield` [1, 3, 6, 10, 15]
+
+        it "can be delayed, but yields the same results" $
+            delay 40.0 (tick 1 1 [1, 2, 3, 4, 5])
+            `shouldYield` [1, 2, 3, 4, 5]
 
 
     describe "A Channel" $ do

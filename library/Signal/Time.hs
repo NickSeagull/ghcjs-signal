@@ -2,6 +2,9 @@ module Signal.Time where
 
 import Prelude hiding (filter)
 import Signal
+import Control.Concurrent
+import Data.IORef
+import System.IO.Unsafe
 
 type Time = Float
 
@@ -24,7 +27,18 @@ now = undefined
 -- |Takes a signal and delays its yielded values by a given number of
 -- |milliseconds.
 delay :: Time -> Signal a -> Signal a
-delay = undefined
+delay t sig = unsafePerformIO $ do
+  let out = make $ get sig
+  first <- newIORef True
+  sig `subscribe` \val -> do
+    first' <- readIORef first
+    if first'
+      then writeIORef first False
+      else do
+        threadDelay (round $ t * 1000)
+        out `set` val
+      
+  return out
 
 -- |Takes a signal and a time value, and creates a signal which yields `True`
 -- |when the input signal yields, then goes back to `False` after the given
