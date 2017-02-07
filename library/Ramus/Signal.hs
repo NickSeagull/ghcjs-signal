@@ -12,7 +12,13 @@ module Ramus.Signal
   , filterMap
   -- , flatten
   -- , flattenArray
-  , 
+  , (~>)
+  , (<~)
+  , (~~)
+  , map2
+  , map3
+  , map4
+  , map5
   ) where
 
 import Prelude hiding (filter)
