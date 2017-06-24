@@ -1,4 +1,4 @@
-module Ramus.Signal 
+module Ramus.Signal
   ( Signal ()
   , constant
   , merge
@@ -32,6 +32,7 @@ import Data.Foldable
 import Data.Maybe
 import Data.IORef
 import System.IO.Unsafe
+import Unsafe.Coerce
 
 
 -- |Creates a signal with a constant value.
@@ -74,7 +75,13 @@ foldp fun seed sig = unsafePerformIO $ do
 -- |Creates a signal which yields the current value of the second signal every
 -- |time the first signal yields.
 sampleOn :: Signal a -> Signal b -> Signal b
-sampleOn = undefined
+sampleOn sig1 sig2 = unsafePerformIO $ do
+    let val = get sig1
+    let out = make val
+    sig1 `subscribe` \val -> do
+        let v' = get sig2
+        out `set` (unsafeCoerce v' :: b)
+    return out
 
 -- |Create a signal which only yields values which aren't equal to the previous
 -- |value of the input signal.
@@ -89,15 +96,19 @@ dropRepeats sig = unsafePerformIO $ do
 -- |Given a signal of effects with no return value, run each effect as it
 -- |comes in.
 runSignal :: Signal (IO ()) -> IO ()
-runSignal sig = do
-  sig `subscribe` \val -> val
+runSignal sig =
+  sig `subscribe` id
 
 
 -- |Takes a signal of effects of `a`, and produces an effect which returns a
 -- |signal which will take each effect produced by the input signal, run it,
 -- |and yield its returned value.
 unwrap :: Signal (IO a) -> IO (Signal a)
-unwrap = undefined
+unwrap sig = do
+    let val = unsafePerformIO $ get sig
+    let out = make val
+    sig `subscribe` \v -> out `set` unsafePerformIO v
+    return out
 
 -- |Takes a signal and filters out yielded values for which the provided
 -- |predicate function returns `false`.
@@ -151,7 +162,7 @@ flatten sig = flattenArray (sig ~> fold . fmap (: []) )
 infixl 4 ~>
 -- | Flipped map operator
 (~>) :: Signal a -> (a -> b) -> Signal b
-(~>) = flip fmap 
+(~>) = flip fmap
 
 infixl 4 <~
 -- | map operator
@@ -160,7 +171,7 @@ infixl 4 <~
 
 infixl 4 ~~
 -- | Signal application.
--- | Note that it is a double tilde, differing from 
+-- | Note that it is a double tilde, differing from
 -- | purescript-signal, as a single tilde is used
 -- | in Haskell for lazy evaluation.
 (~~) :: Signal (a -> b) -> Signal a -> Signal b
