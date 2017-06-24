@@ -121,7 +121,7 @@ main = hspec $ parallel $ do
 
 functorIdentity :: A
                 -> IO ()
-functorIdentity x = 
+functorIdentity x =
     (id <$> constant x)
     `shouldYield` [x]
 
@@ -130,7 +130,7 @@ functorComposition :: A ~> B
                    -> B ~> C
                    -> A
                    -> IO ()
-functorComposition _F _G x = 
+functorComposition _F _G x =
     (f <$> g <$> constant x)
     `shouldYield` [f (g x)]
   where 

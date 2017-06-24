@@ -4,6 +4,8 @@ import Prelude hiding (filter)
 import Ramus.Signal
 import Ramus.Internal
 import Control.Concurrent
+import Control.Concurrent.Async
+import Control.Monad (forever)
 import Data.IORef
 import System.IO.Unsafe
 
@@ -15,15 +17,27 @@ millisecond = 1.0
 second :: Time
 second = 1000.0
 
+foreign import javascript unsafe "$r = Date.now();"
+    js_now :: IO Int
+
 -- |Creates a signal which yields the current time (according to `now`) every
 -- |given number of milliseconds.
 every :: Time -> Signal Time
-every = undefined
+every ms = unsafePerformIO $ do
+    rn <- now
+    let out = constant rn
+    _ <- async $ forever $ do
+        threadDelay (round $ ms * 1000)
+        rn' <- now
+        out `set` rn'
+    return out
 
 -- |Returns the number of milliseconds since an arbitrary, but constant, time
 -- |in the past.
 now :: IO Time
-now = undefined
+now = do
+    rn <- js_now
+    return $ fromIntegral rn / 1000000
 
 -- |Takes a signal and delays its yielded values by a given number of
 -- |milliseconds.
@@ -38,7 +52,6 @@ delay t sig = unsafePerformIO $ do
       else do
         threadDelay (round $ t * 1000)
         out `set` val
-      
   return out
 
 -- |Takes a signal and a time value, and creates a signal which yields `True`
@@ -65,7 +78,7 @@ since t sig = unsafePerformIO $ do
             tim <- forkIO $ do
               threadDelay (round $ t * 1000)
               tick
-            writeIORef timerRef $ Just tim           
+            writeIORef timerRef $ Just tim
 
           Just tim -> do
             killThread tim

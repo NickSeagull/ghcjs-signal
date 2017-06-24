@@ -26,6 +26,7 @@ github: NickSeagull/ramus
 library:
   dependencies:
   - base == 4.*
+  - async
   source-dirs: library
 license: MIT
 maintainer: Nikita Tchayka
