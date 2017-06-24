@@ -39,6 +39,7 @@ tests:
     - hspec
     - QuickCheck
     - quickcheck-io
+    - async
     ghc-options:
     - -rtsopts
     - -threaded

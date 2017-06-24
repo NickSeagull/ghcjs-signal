@@ -1,6 +1,7 @@
 module SignalTester
     ( shouldYield
     , tick
+    , expect
     )
 where
 
@@ -10,6 +11,7 @@ import Data.IORef
 import Control.Monad (unless)
 import System.IO.Unsafe
 import Control.Concurrent
+import Control.Concurrent.Async (race_)
 
 shouldYield :: (Eq a, Show a)
               => Signal a
@@ -57,3 +59,9 @@ setTimeout :: Int -> IO () -> IO ()
 setTimeout ms action = do
     threadDelay (ms * 1000)
     action
+
+expect :: (Eq a, Show a) => Int -> Signal a -> [a] -> IO ()
+expect ms sig vals =
+    race_
+        (error "Operation timed out")
+        (sig `shouldYield` vals)

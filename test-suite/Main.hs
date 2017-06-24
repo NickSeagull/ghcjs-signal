@@ -13,6 +13,8 @@ import Ramus.Channel as Channel
 import Ramus.Time
 import Ramus.Internal
 import SignalTester
+import Control.Concurrent.Async
+import Control.Concurrent (threadDelay)
 
 type A = Int
 type B = Int
@@ -22,7 +24,7 @@ type (~>) a b = Fun a b
 main :: IO ()
 main = hspec $ parallel $ do
 
-    describe "The Signal tester" $ 
+    describe "The Signal tester" $
         it "can check if a Signal contains the values or not" $
             constant "Foo" `shouldYield` ["Foo"] 
 
@@ -91,6 +93,22 @@ main = hspec $ parallel $ do
         it "yields true only once for multiple yields with since" $
             since 10.0 (tick 1 1 [1, 2, 3])
             `shouldYield` [False, True, False]
+
+        it "can use debounce, which yields only the most recent value in a series shorter than the interval" $ do
+            chan <- channel 0
+            let sig = debounce 10.0 $ Channel.subscribe chan
+                send' = send chan
+            _ <- async $ expect 50 sig [0,2,4]
+            threadDelay (20 * 1000)
+            send' 1
+            threadDelay (5 * 1000)
+            send' 2
+            threadDelay (20 * 1000)
+            send' 3
+            threadDelay (5 * 1000)
+            send' 4
+            threadDelay (20 * 1000)
+
 
 
     describe "A Channel" $
@@ -184,7 +202,7 @@ mapFunctionsProperty :: [A]
                      -> A ~> B
                      -> Property
 mapFunctionsProperty lst _F =
-    length lst > 1 ==> 
+    length lst > 1 ==>
     (f <$> tick 1 1 lst ) `shouldYield` (f <$> lst)
   where
     f = apply _F

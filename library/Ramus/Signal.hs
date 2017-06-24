@@ -120,7 +120,7 @@ filter fn seed sig = unsafePerformIO $ do
   return out
 
 -- |Map a signal over a function which returns a `Maybe`, yielding only the
--- |values inside `Just`s, dropping the `Nothing`s.
+-- values inside `Just`s, dropping the `Nothing`s.
 filterMap :: (a -> Maybe b) -> b -> Signal a -> Signal b
 filterMap f def sig = fromMaybe def <$> filter isJust (Just def) (f <$> sig)
 
