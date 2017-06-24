@@ -71,14 +71,14 @@ main = hspec $ parallel $ do
 
         it "is able to filter Maybe values with filterMap" $
             filterMap (\n -> if n < 5 then Just n else Nothing)
-                 0 (tick 1 1 [5, 3, 8, 4]) 
+                 0 (tick 1 1 [5, 3, 8, 4])
                  `shouldYield` [0, 3, 4]
 
-        {- Leaves the first value off always}
+        {- Leaves the first value off always-}
         it "is able to flatten the values" $
             flatten (tick 1 1 [[1, 2], [3, 4], [], [5, 6, 7]]) 0
             `shouldYield` [1, 2, 3, 4, 5, 6, 7]
-        -}
+        --}
 
         it "is able to sum values with foldp" $
             foldp (+) 0 (tick 1 1 [1, 2, 3, 4, 5])
@@ -93,7 +93,7 @@ main = hspec $ parallel $ do
             `shouldYield` [False, True, False]
 
 
-    describe "A Channel" $ do
+    describe "A Channel" $
 
         it "'s subscriptions yield when we send to it" $ do
             chan <- Channel.channel 1

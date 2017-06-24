@@ -10,8 +10,8 @@ module Ramus.Signal
   -- , unwrap
   , filter
   , filterMap
-  -- , flatten
-  -- , flattenArray
+  , flatten
+  , flattenArray
   , (~>)
   , (<~)
   , (~~)
@@ -80,8 +80,8 @@ sampleOn sig1 sig2 = unsafePerformIO $ do
     let out = make val
     sig1 `subscribe` \val -> do
         let v' = get sig2
-        out `set` (unsafeCoerce v' :: b)
-    return out
+        out `set` (unsafeCoerce v' :: b)   -- If something goes wrong, it's probably here
+    return $ unsafeCoerce out              -- or here
 
 -- |Create a signal which only yields values which aren't equal to the previous
 -- |value of the input signal.
@@ -124,40 +124,36 @@ filter fn seed sig = unsafePerformIO $ do
 filterMap :: (a -> Maybe b) -> b -> Signal a -> Signal b
 filterMap f def sig = fromMaybe def <$> filter isJust (Just def) (f <$> sig)
 
-{-}
 -- |Turns a signal of arrays of items into a signal of each item inside
--- |each array, in order.
--- |
--- |Like `flatten`, but faster.
+-- each array, in order.
+-- 
+-- Like `flatten`, but faster.
 flattenArray :: Show a => Signal [a] -> a -> Signal a
 flattenArray sig seed = unsafePerformIO $ do
   firstRef <- newIORef (Just $ get sig)
   seedRef <- newIORef seed
   first <- readIORef firstRef
-  print $ "Read first:" ++ show first
   case first of
     Just x -> writeIORef seedRef (head x)
     Nothing -> writeIORef firstRef Nothing
   seed <- readIORef seedRef
   let out = make seed
-  let sset x = do
-          print $ "Feeding value: " ++ show x
-          set out x
-  let feed items = mapM_ sset items
+  let sset = set out
+  let feed = mapM_ sset
   sig `subscribe` \val -> do
     first <- readIORef firstRef
     case first of
       Nothing -> feed val
       Just x -> do
-        feed $ tail x
+        feed [head x]
         writeIORef firstRef Nothing
   return out
 
 -- |Turns a signal of collections of items into a signal of each item inside
--- |each collection, in order.
+-- each collection, in order.
 flatten :: (Functor f, Foldable f, Show a) => Signal (f a) -> a -> Signal a
 flatten sig = flattenArray (sig ~> fold . fmap (: []) )
--}
+--}
 
 infixl 4 ~>
 -- | Flipped map operator
