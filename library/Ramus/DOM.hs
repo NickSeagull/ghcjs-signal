@@ -3,18 +3,45 @@ module Ramus.DOM () where
 import Ramus.Signal
 import Ramus.Time
 
+import GHCJS.Foreign.Callback
+
 data CoordinatePair = CoordinatePair { x :: Int, y :: Int }
 data DimensionPair  = DimensionPair { w :: Int, h :: Int }
+
+foreign import javascript unsafe "window.addEventListener('keydown', function(e){\
+                                    if(e.keyCode === $1) $2(true);\
+                                 });\
+                                 window.addEventListener('keyup', function(e){\
+                                    if(e.keyCode === $1) $2(false);\
+                                 });"
+    js_keyPressed :: Int -> Callback (Bool -> IO ()) -> IO ()
+
+foreign import javascript unsafe "window.addEventListener('mousedown', function(e){\
+                                    if(e.keyCode === $1) $2(true);\
+                                 });\
+                                 window.addEventListener('mouseup', function(e){\
+                                    if(e.keyCode === $1) $2(false);\
+                                 });"
+    js_mouseButton :: Int -> Callback (Bool -> IO ()) -> IO ()
+
 
 -- |Creates a signal which will be `true` when the key matching the given key
 -- |code is pressed, and `false` when it's released.
 keyPressed :: Int -> IO (Signal Bool)
-keyPressed = undefined
+keyPressed keyCode = do
+    let out = constant False
+    cb <- asyncCallback1 (set out)
+    js_keyPressed keyCode cb
+    return out
 
 -- |Creates a signal which will be `true` when the given mouse button is
 -- |pressed, and `false` when it's released.
 mouseButton :: Int -> IO (Signal Bool)
-mouseButton = undefined
+mouseButton button = do
+    let out = constant False
+    cb <- asyncCallback1 (set out)
+    js_mouseButton button cb
+    return out
 
 data Touch = Touch
   { id :: String
