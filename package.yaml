@@ -16,8 +16,7 @@ benchmarks:
 category: Other
 description: Ramus is a direct port of purescript-signal into Haskell, offering the Elm signal system for Haskell.
 extra-source-files:
-- CHANGELOG.md
-- LICENSE.md
+- LICENSE
 - package.yaml
 - README.md
 - stack.yaml
